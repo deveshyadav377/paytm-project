@@ -1,9 +1,17 @@
+require('dotenv').config();
+
 const mongoose = require("mongoose") 
 
+const connectToDB = async ()=>{
+    try {
+        const conn = await mongoose.connect(process.env.MONGODB_URI)
+        console.log("Connection to DB is seccessfull")
+    } catch (error) {
+        console.error("Connection failed to DB", error.message)
+    }
+}
+connectToDB();
 
-mongoose.connect("mongodb+srv://deveshyadav377:deveshyadav377@cluster0.7fob0bp.mongodb.net/paytm")
-
-// Create a Schema for Users
 const userSchema = new mongoose.Schema({
     username: {
         type: String,

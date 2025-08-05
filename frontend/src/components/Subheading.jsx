@@ -1,5 +1,7 @@
-export function SubHeading({label}){
-    return<div className="text-slate-500 text-md pt-1 px-4 pb-4">
-        {label}
-    </div>
+export function SubHeading({ label }) {
+  return (
+    <p className="text-sm sm:text-base text-center text-gray-500 px-6 pt-2 pb-4 leading-relaxed">
+      {label}
+    </p>
+  );
 }

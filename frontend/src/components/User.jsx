@@ -1,57 +1,88 @@
-import { useEffect, useState } from "react"
-import { Button } from "./Button"
+import { useEffect, useState } from "react";
+import { Button } from "./Button";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-
 export const Users = () => {
-    // Replace with backend call
-    const [users, setUsers] = useState([]);
-    const [filter, setFilter] = useState("");
+  const [users, setUsers] = useState([]);
+  const [filter, setFilter] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-    useEffect(() => {
-        axios.get("http://localhost:3000/api/v1/user/bulk?filter=" + filter)
-            .then(response => {
-                setUsers(response.data.user)
-            })
-    }, [filter])
+  // Debounce search input
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      fetchUsers();
+    }, 400);
 
-    return <>
-        <div className="font-bold mt-6 text-lg">
-            Users
-        </div>
-        <div className="my-2">
-            <input onChange={(e) => {
-                setFilter(e.target.value)
-            }} type="text" placeholder="Search users..." className="w-full px-2 py-1 border rounded border-slate-200"></input>
-        </div>
-        <div>
-            {users.map(user => <User user={user} />)}
-        </div>
-    </>
-}
+    return () => clearTimeout(delayDebounce);
+  }, [filter]);
 
-function User({user}) {
-    const navigate = useNavigate();
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(
+        `https://paytm-backend-p8ix.onrender.com/api/v1/user/bulk?filter=${filter}`
+      );
+      setUsers(response.data.user || []);
+      setError("");
+    } catch (err) {
+      setError("Failed to load users");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return <div className="flex justify-between">
-        <div className="flex">
-            <div className="rounded-full h-12 w-12 bg-slate-200 flex justify-center mt-1 mr-2">
-                <div className="flex flex-col justify-center h-full text-xl">
-                    {user.firstName[0]}
-                </div>
-            </div>
-            <div className="flex flex-col justify-center h-ful">
-                <div>
-                    {user.firstName} {user.lastName}
-                </div>
-            </div>
-        </div>
+  return (
+    <div className="mt-6">
+      <h2 className="font-bold text-lg mb-2">Send Money to Other Users</h2>
 
-        <div className="flex flex-col justify-center h-ful">
-            <Button onClick={(e) => {
-                navigate("/send?id=" + user._id + "&name=" + user.firstName);
-            }} label={"Send Money"} />
-        </div>
+      <input
+        onChange={(e) => setFilter(e.target.value)}
+        type="text"
+        placeholder="Search users..."
+        className="w-full px-3 py-2 border rounded border-slate-300 mb-4"
+      />
+
+      {loading && <div className="text-gray-500">Loading users...</div>}
+      {error && <div className="text-red-500">{error}</div>}
+      {!loading && users.length === 0 && (
+        <div className="text-gray-500">No users found</div>
+      )}
+
+      <div className="space-y-3">
+        {users.map((user) => (
+          <User key={user._id} user={user} />
+        ))}
+      </div>
     </div>
+  );
+};
+
+function User({ user }) {
+  const navigate = useNavigate();
+
+  if (!user) return null;
+
+  const initials = user.firstName ? user.firstName[0] : "U";
+
+  return (
+    <div className="flex items-center justify-between bg-white shadow-sm border rounded-lg px-4 py-3 hover:shadow-md transition-shadow">
+      <div className="flex items-center">
+        <div className="rounded-full h-12 w-12 bg-indigo-100 text-indigo-700 font-bold flex items-center justify-center text-lg mr-4">
+          {initials}
+        </div>
+        <div className="text-sm font-medium text-gray-700">
+          {user.firstName} {user.lastName}
+        </div>
+      </div>
+      <Button
+        onClick={() => {
+          navigate(`/send?id=${user._id}&name=${user.firstName}`);
+        }}
+        label={"Send Money"}
+      />
+    </div>
+  );
 }
