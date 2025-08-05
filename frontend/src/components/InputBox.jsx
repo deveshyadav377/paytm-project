@@ -1,3 +1,4 @@
+
 export function InputBox({ label, placeholder, onChange, type = "text" }) {
   return (
     <div className="flex flex-col space-y-1 mb-4">
