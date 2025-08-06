@@ -100,3 +100,4 @@ router.get("/rewards", authMiddleware, async (req, res) => {
     res.status(500).json({ message: "Could not fetch rewards" });
   }
 });
+module.exports = router;
