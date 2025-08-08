@@ -7,18 +7,23 @@ const { Reward } = require("../models/rewardSchema");
 
 const router = express.Router();
 
-// ✅ Get Balance
+//  Get Balance
 router.get("/balance", authMiddleware, async (req, res) => {
-    const account = await Account.findOne({
-        userId: req.userId
-    });
+   try {
+          const account = await Account.findOne({
+            userId: req.userId
+        });
 
-    res.json({
-        balance: account.balance
-    });
+        res.json({
+            balance: account.balance
+        });
+    } catch (error) {
+      console.error("Error fetching balance:", error);
+      res.status(500).json({ message: "Failed to fetch balance" });
+    }
 });
 
-// ✅ Transfer Money & Save Transaction
+//  Transfer Money & Save Transaction
 router.post("/transfer", authMiddleware, async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -71,7 +76,7 @@ router.post("/transfer", authMiddleware, async (req, res) => {
 });
 
 
-// ✅ Get transaction history for a user
+//  Get transaction history for a user
 router.get("/transactions", authMiddleware, async (req, res) => {
     try {
         const transactions = await Transaction.find({
@@ -91,7 +96,7 @@ router.get("/transactions", authMiddleware, async (req, res) => {
     }
 });
 
-// ✅ Get rewards for a user
+//  Get rewards for a user
 router.get("/rewards", authMiddleware, async (req, res) => {
   try {
     const rewards = await Reward.find({ user: req.userId }).sort({ timestamp: -1 });
