@@ -23,7 +23,6 @@ router.get("/balance", authMiddleware, async (req, res) => {
     }
 });
 
-//  Transfer Money & Save Transaction
 router.post("/transfer", authMiddleware, async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -59,6 +58,17 @@ router.post("/transfer", authMiddleware, async (req, res) => {
       amount: rewardAmount
     });
     await reward.save({ session });
+
+    //  Save transaction record
+    const transaction = new Transaction({
+      sender: req.userId,
+      receiver: to,
+      amount,
+      method: 'WALLET', 
+      status: 'SUCCESS', 
+      timestamp: new Date() 
+    });
+    await transaction.save({ session });
 
     await session.commitTransaction();
 
