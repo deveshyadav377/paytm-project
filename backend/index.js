@@ -6,7 +6,7 @@ require("dotenv").config();
 
 const app = express();
 app.use(cors({
-  origin: "https://paytm-project-wine.vercel.app/", // or your frontend domain
+  origin: "https://paytm-project-wine.vercel.app", // or your frontend domain
   credentials: true
 }));
 
