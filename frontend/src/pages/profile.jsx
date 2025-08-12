@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { ProfileCard } from "./ProfileCard";
+import { ProfileCard } from "../components/ProfileCard";
 
 export const ProfilePage = () => {
   const [user, setUser] = useState(null);
@@ -8,7 +8,7 @@ export const ProfilePage = () => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const response = await axios.get("http://localhost:3000/api/v1/user/me", {
+      const response = await axios.get("https://paytm-backend-p8ix.onrender.com/api/v1/user/me", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -29,9 +29,9 @@ export const ProfilePage = () => {
     firstName: user.firstName,
     lastName: user.lastName,
     email: user.username,
-    dob: user.dob || "",
+    DateOfBirth: user.dob || "",
     country: user.country || "",
-  };
+  };  
 
   const preferenceData = {
     language: user.language || "",

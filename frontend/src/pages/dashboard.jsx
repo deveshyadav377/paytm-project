@@ -1,12 +1,30 @@
 import { useState, useEffect } from "react";
-import { Appbar } from "../components/Appbar";
 import { Balance } from "../components/Balance";
 import { Users } from "../components/User";
 import axios from "axios";
-
+import {jwtDecode} from "jwt-decode";
+import { RewardsCarousel } from "../components/RewardCarousel";
 export const Dashboard = () => {
-  const [balance, setBalance] = useState(null);
   
+  const [balance, setBalance] = useState(null);
+  const [userName, setUserName] = useState("User");
+
+  useEffect(() => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+  
+      try {
+        const decoded = jwtDecode(token);
+        const firstName = decoded.firstName || "";
+        const lastName = decoded.lastName || "";
+  
+        const fullName = `${firstName} ${lastName}`.trim();
+        setUserName(fullName);
+      } catch (e) {
+        console.error("❌ Invalid token:", e.message);
+      }
+    }, []);
+
   useEffect(() => {
     const fetchBalance = async () => {
       try {
@@ -19,45 +37,31 @@ export const Dashboard = () => {
           }
         );
         setBalance(response.data.balance);
+        console.log("Balance fetched successfully:", response.data.balance);
       } catch (error) {
         console.error("Error fetching balance:", error);
       }
     };
-
     fetchBalance();
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      {/* Top Appbar */}
-      <Appbar balance={balance} />
+    <div>
+       <h1 className="text-3xl font-extrabold mb-6 text-gray-900 drop-shadow-md">
+  👋  Hey {userName}, <span className="text-indigo-600">Welcome back!</span>
+      <br />
+      <span className="text-lg font-medium text-gray-500">Here's your personalized dashboard</span>
+  </h1>
+     
+      {/* Wallet balance */}
+      <div className="mb-6">
+        <Balance value={balance} />
+      </div>
 
-      {/* Main content */}
-      <main className="flex-1 p-4 sm:p-8 max-w-5xl mx-auto w-full">
-        <h1 className="text-2xl font-semibold mb-4 text-gray-800">
-          Welcome to your Dashboard
-        </h1>
-
-        {/* Wallet balance */}
-        <div className="mb-6">
-          <Balance value={balance} />
-        </div>
-
-        {/* All users */}
-        <div>
-          <Users />
-        </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="bg-white border-t mt-auto py-4 px-6 text-sm text-gray-500 text-center">
-        <div>
-          © {new Date().getFullYear()} PayMate. All rights reserved.
-        </div>
-        <div className="mt-1">
-          Contact us: <a href="mailto:support@paymate.com" className="text-indigo-600">support@paymate.com</a>
-        </div>
-      </footer>
+      {/* All users */}
+      <div>
+        <RewardsCarousel />
+      </div>
     </div>
   );
 };
